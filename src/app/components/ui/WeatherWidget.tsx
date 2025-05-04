@@ -14,9 +14,15 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
   lon = "20.509207",
   city = "Kaliningrad",
 }) => {
-  const getCurrentDateTime = () => {
-    const now = new Date();
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [dateTime, setDateTime] = useState({ time: "", date: "" });
+  const API_KEY = "c8359278b7eacfb3149b79eda8f6ae5d";
 
+  const updateDateTime = () => {
+    const now = new Date();
+    
     const days = [
       "Sunday",
       "Monday",
@@ -50,25 +56,18 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
     const minutes = now.getMinutes().toString().padStart(2, "0");
     const seconds = now.getSeconds().toString().padStart(2, "0");
 
-    return {
+    setDateTime({
       time: `${hours}:${minutes}:${seconds}`,
       date: `${dayOfWeek}, ${day} ${month} ${year}`,
-    };
+    });
   };
-
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [dateTime, setDateTime] = useState(getCurrentDateTime());
-
-  const API_KEY = "5f7e949b103da1232d6a74766fe9821a";
 
   useEffect(() => {
     const fetchWeatherData = async () => {
       try {
         setLoading(true);
         setError(null);
-
+        
         const response = await axios.get(
           `https://api.openweathermap.org/data/2.5/weather`,
           {
@@ -83,20 +82,24 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
         );
 
         setWeatherData(response.data);
-      } catch (err) {
-        console.error("Error loading weather data:", err);
-        setError("Error loading weather data.");
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          setError("API key error. Check your OpenWeatherMap API key.");
+        } else {
+          setError("Error loading weather data.");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchWeatherData();
-  }, [lat, lon, API_KEY]);
+  }, [lat, lon, API_KEY, city]);
 
   useEffect(() => {
+    updateDateTime();
     const timer = setInterval(() => {
-      setDateTime(getCurrentDateTime());
+      updateDateTime();
     }, 1000);
 
     return () => clearInterval(timer);
@@ -124,8 +127,12 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
   if (loading) {
     return (
       <div className="bg-blue-50 p-4 rounded-lg shadow-md w-full max-w-xs">
-        <div className="text-right font-bold text-2xl">{dateTime.time}</div>
-        <div className="text-right text-gray-600">{dateTime.date}</div>
+        {dateTime.time && (
+          <>
+            <div className="text-right font-bold text-2xl">{dateTime.time}</div>
+            <div className="text-right text-gray-600">{dateTime.date}</div>
+          </>
+        )}
         <div className="mt-6 flex justify-center items-center">
           <div className="h-2 w-full bg-red-200 rounded-full">
             <div className="h-2 bg-red-500 rounded-full w-1/2 animate-pulse"></div>
@@ -139,8 +146,12 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
   if (error) {
     return (
       <div className="bg-blue-50 p-4 rounded-lg shadow-md w-full max-w-xs">
-        <div className="text-right font-bold text-2xl">{dateTime.time}</div>
-        <div className="text-right text-gray-600">{dateTime.date}</div>
+        {dateTime.time && (
+          <>
+            <div className="text-right font-bold text-2xl">{dateTime.time}</div>
+            <div className="text-right text-gray-600">{dateTime.date}</div>
+          </>
+        )}
         <div className="mt-6 text-center text-red-500">{error}</div>
         <div className="h-2 w-full bg-red-200 rounded-full mt-4">
           <div className="h-2 bg-red-500 rounded-full w-full"></div>
@@ -181,10 +192,12 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
         <p className="text-lg">Wind speed: {weatherData.wind.speed} m/s</p>
       </div>
 
-      <div className="text-right mt-4 relative z-10">
-        <div className="font-bold text-2xl">{dateTime.time}</div>
-        <div className="text-gray-700">{dateTime.date}</div>
-      </div>
+      {dateTime.time && (
+        <div className="text-right mt-4 relative z-10">
+          <div className="font-bold text-2xl">{dateTime.time}</div>
+          <div className="text-gray-700">{dateTime.date}</div>
+        </div>
+      )}
     </div>
   );
 };
