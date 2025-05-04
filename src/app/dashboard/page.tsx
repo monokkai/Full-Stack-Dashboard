@@ -10,7 +10,7 @@ import { EmployeeRepository } from "../repositories/employeeRepository";
 import { User } from "@/app/classes/User";
 import { Good } from "@/app/classes/Good";
 import { Employee } from "@/app/classes/Employee";
-import Chart from "../components/Chart";
+import WeatherWidget from "../components/ui/WeatherWidget";
 
 export type Category = "users" | "goods" | "employees";
 export type Repositories = {
@@ -81,7 +81,7 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <Flex gap="8" p="5" className=" bg-blue-50">
+    <Flex gap="8" p="5" className="bg-blue-50">
       <Sidebar payload={sidebarItems} />
       {selectedItem ? (
         <CardView
@@ -105,10 +105,9 @@ const Dashboard: React.FC = () => {
           }}
         />
       )}
-      <Box>
-        <Chart data={users} dataKey="city" />
-        <Chart data={users} dataKey="birthDate" />
-      </Box>
+      <Flex direction="column" gap="6">
+        <WeatherWidget />
+      </Flex>
     </Flex>
   );
 };
