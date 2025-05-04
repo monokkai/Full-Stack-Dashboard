@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { Box, Button, Flex, Heading } from "@radix-ui/themes";
 import { User } from "@/app/classes/User";
 import { Good } from "@/app/classes/Good";
@@ -23,7 +23,6 @@ const CardView: React.FC<CardViewProps> = ({
   onUpdate,
 }: CardViewProps) => {
   const [currentItem, setCurrentItem] = useState<User | Good | Employee>(item);
-
   const userRepository = new UserRepository();
   const goodRepository = new GoodRepository();
   const employeeRepository = new EmployeeRepository();
@@ -32,7 +31,7 @@ const CardView: React.FC<CardViewProps> = ({
     const id = currentItem.id;
 
     switch (category) {
-      case "users": //если щас будет ругаться на updatedItem, то нужно будет сделать через тогда as user или там товар и так далее
+      case "users":
         userRepository.update(id, updatedItem);
         break;
       case "goods":
@@ -50,17 +49,19 @@ const CardView: React.FC<CardViewProps> = ({
     }
   };
 
-  const renderItemDetails = () => {
-    return Object.entries(currentItem)
-      .map(([key, value]) => {
-        return (
-          <Box key={key} className="mb-3">
-            <strong className="text-gray-700">{key}:</strong>{" "}
-            <span className="text-gray-800">{value}</span>
-          </Box>
-        );
-      })
-      .filter(Boolean);
+  const renderItemDetails: () => ReactNode = () => {
+    return (
+      <Box>
+        {Object.entries(currentItem).map(([key, value]) => {
+          return (
+            <Box key={key} className="mb-3">
+              <strong className="text-gray-700">{key.toString()}:</strong>{" "}
+              <span className="text-gray-800">{value.toString()}</span>
+            </Box>
+          );
+        })}
+      </Box>
+    );
   };
 
   const getEditButtonText = () => {

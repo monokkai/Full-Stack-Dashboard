@@ -7,6 +7,8 @@ export class User {
     public age: number,
     public phone: string,
     public email: string,
-    public goods: Good[] = []
+    public goods: Good[] = [],
+    public city: string,
+    public birthYear: Date
   ) {}
 }

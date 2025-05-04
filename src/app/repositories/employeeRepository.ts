@@ -1,19 +1,15 @@
+import { faker } from "@faker-js/faker";
 import { Employee } from "../classes/Employee";
 import { IFullRepository } from "../repositories/Interfaces/IFullRepository";
-import { employeeFaker } from "./functions/faker";
 
 export class EmployeeRepository implements IFullRepository<Employee> {
   private employees: Employee[] = [];
-
-  constructor() {
-    employeeFaker(50);
-  }
 
   create(employee: Employee): void {
     this.employees.push(employee);
   }
 
-  read(id: number): Employee | undefined {
+  getOne(id: number): Employee | undefined {
     return this.employees.find((employee) => employee.id === id);
   }
 
@@ -31,4 +27,17 @@ export class EmployeeRepository implements IFullRepository<Employee> {
   getAll(): Employee[] {
     return this.employees;
   }
+
+  generateData: (quantity: number) => void = () => {
+
+    for (let i = 0; i <= 50; i++) {
+      const employee: Employee = new Employee(
+        i,
+        faker.commerce.department(),
+        faker.internet.username(),
+        faker.phone.number()
+      );
+      this.employees.push(employee);
+    }
+  };
 }

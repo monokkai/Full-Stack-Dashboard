@@ -1,0 +1,16 @@
+☐ Gets [object, Object] when i choose goods for user
+
+☐ Email + Phone = undefined in Goods 
+It should be there, other props need to be there
+☐ Employees email = undefiend 
+But they dont have it anymore!
+
+☐ For everything writes Edit User button
+But needs to write Edit User/Good/Employee
+
+☐ When im switching tabs just writes Users
+Needs to write current category
+
+☐ Stats just like Users stats, not like Good stats/Employee stats
+But needs to write also current category!
+

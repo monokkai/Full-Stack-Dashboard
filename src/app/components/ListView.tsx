@@ -1,6 +1,6 @@
 import { Box, Flex, Heading, Text } from "@radix-ui/themes";
 import React, { useState } from "react";
-import { Category } from "../dashboard/page";
+import { Category, Repositories } from "../dashboard/page";
 import Statistics from "./Statistics";
 import { User } from "../classes/User";
 import { Good } from "../classes/Good";
@@ -10,6 +10,7 @@ interface ListViewProps {
   data: Array<User | Good | Employee>;
   stats: { users: number; goods: number; employees: number };
   category: Category;
+  repositories: Repositories;
   onItemClick: (item: User | Good | Employee) => void;
 }
 
@@ -19,6 +20,7 @@ const ListView: React.FC<ListViewProps> = ({
   data,
   stats,
   category,
+  repositories,
   onItemClick,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -78,7 +80,7 @@ const ListView: React.FC<ListViewProps> = ({
                   #{item.id}
                 </Text>
                 <Text size="5" weight="bold" className="text-gray-800">
-                  {item.name}
+                  {item.name || item.title}
                 </Text>
                 <Text className="text-gray-600 text-lg">
                   {getCategorySpecificInfo(item)}
@@ -123,13 +125,12 @@ const ListView: React.FC<ListViewProps> = ({
         </Flex>
       </Box>
 
-      <Box className="mt-4">
-        <Statistics
-          category={category}
-          stats={stats}
-          currentCategoryCount={data.length}
-        />
-      </Box>
+      <Statistics
+        category={category}
+        repositories={repositories}
+        stats={stats}
+        currentCategoryCount={data.length}
+      />
     </Flex>
   );
 };

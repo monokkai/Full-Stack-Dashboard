@@ -1,6 +1,11 @@
-import { Box, Heading, Text, Flex } from "@radix-ui/themes";
-import React from "react";
-import { Category } from "../dashboard/page";
+import { Box, Heading, Text, Flex, Select } from "@radix-ui/themes";
+import React, { useState } from "react";
+import { Category, Repositories } from "../dashboard/page";
+import Chart from "./Chart";
+import { UserRepository } from "../repositories/userRepository";
+import { GoodRepository } from "../repositories/goodRepository";
+import { EmployeeRepository } from "../repositories/employeeRepository";
+import { User } from "../classes/User";
 
 interface StatisticsProps {
   category: Category;
@@ -10,24 +15,52 @@ interface StatisticsProps {
     employees: number;
   };
   currentCategoryCount: number;
+  repositories: Repositories;
 }
 
 const Statistics: React.FC<StatisticsProps> = ({
   category,
   stats,
   currentCategoryCount,
-}) => {
+  repositories,
+}: StatisticsProps) => {
+  const [criteria, setCriteria] = useState<
+    "city" | "birthYear" | "purchasedProducts"
+  >("purchasedProducts");
+
   const getCategoryTitle = () => {
     switch (category) {
       case "users":
-        return "Users Statistics";
+        return "Users stat";
       case "goods":
-        return "Goods Statistics";
+        return "Goods stat";
       case "employees":
-        return "Employees Statistics";
+        return "Employees stat";
       default:
-        return "Statistics";
+        return "Stat";
     }
+  };
+
+  const getCurrentData = () => {
+    switch (category) {
+      case "users":
+        const users = repositories.users.getAll();
+        return users;
+      case "goods":
+        const goods = repositories.goods.getAll();
+        return goods;
+      case "employees":
+        const employee = repositories.employees.getAll();
+        return employee;
+      default:
+        return [];
+    }
+  };
+
+  const currentData = getCurrentData();
+
+  const handleCriteriaChange = (value: string) => {
+    setCriteria(value as "city" | "birthYear" | "purchasedProducts");
   };
 
   return (
@@ -37,29 +70,44 @@ const Statistics: React.FC<StatisticsProps> = ({
       </Heading>
 
       <Flex direction="column" gap="4">
-        <Text className="text-gray-700 text-lg">
-          <Text weight="bold" className="text-lg">
-            Total {category}:
-          </Text>{" "}
-          {currentCategoryCount}
-        </Text>
-
-        <Box className="mt-2">
-          <Text weight="bold" className="mb-3 text-gray-800 text-xl">
-            System Statistics:
+        <Flex justify="between">
+          <Text className="text-gray-700 text-lg">
+            <Text weight="bold">
+              Текущие{" "}
+              {category === "users"
+                ? "users"
+                : category === "goods"
+                  ? "goods"
+                  : "employees"}
+              :
+            </Text>{" "}
+            {currentCategoryCount}
           </Text>
-          <Flex direction="column" gap="3" className="pl-4">
-            <Text className="text-gray-700 text-lg">
-              Users in system: {stats.users}
-            </Text>
-            <Text className="text-gray-700 text-lg">
-              Goods in system: {stats.goods}
-            </Text>
-            <Text className="text-gray-700 text-lg">
-              Employees in system: {stats.employees}
-            </Text>
-          </Flex>
-        </Box>
+          <Text className="text-gray-700 text-lg">
+            <Text weight="bold">Total registrated:</Text> {stats[category]}
+          </Text>
+        </Flex>
+
+        {category === "users" && (
+          <Box className="mt-2">
+            <Select.Root value={criteria} onValueChange={handleCriteriaChange}>
+              <Select.Trigger className="w-full" />
+              <Select.Content>
+                <Select.Group>
+                  <Select.Label>Categories</Select.Label>
+                  <Select.Item value="purchasedProducts">
+                    Popular goods
+                  </Select.Item>
+                  <Select.Item value="city">Cities</Select.Item>
+                  <Select.Item value="birthYear">Ages</Select.Item>
+                </Select.Group>
+              </Select.Content>
+            </Select.Root>
+            <Box className="mt-4">
+              <Chart data={currentData as User[]} dataKey={criteria} />
+            </Box>
+          </Box>
+        )}
       </Flex>
     </Box>
   );
